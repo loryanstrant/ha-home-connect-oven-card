@@ -1,0 +1,34 @@
+name: Bug report
+description: Report a bug in the Home Connect Oven Card.
+labels: ["bug"]
+body:
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
+      placeholder: "2026.5.0"
+    validations:
+      required: true
+  - type: input
+    id: card_version
+    attributes:
+      label: Card version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: oven_model
+    attributes:
+      label: Oven model (and manufacturer)
+      placeholder: "Bosch HBG7741B1A"
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Card YAML
+      render: yaml
