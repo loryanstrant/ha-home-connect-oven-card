@@ -1,0 +1,25 @@
+name: Add oven model to bundled image lookup
+description: Request the bundled image map cover a new oven model.
+labels: ["image-map"]
+body:
+  - type: input
+    id: manufacturer
+    attributes:
+      label: Manufacturer
+      placeholder: "Bosch / Siemens / Neff / Gaggenau"
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model number
+      placeholder: "HBG7741B1A"
+    validations:
+      required: true
+  - type: input
+    id: image_url
+    attributes:
+      label: Product image URL
+      description: A stable URL to a product photo (ideally on the manufacturer's CDN).
+    validations:
+      required: true
