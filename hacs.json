@@ -1,0 +1,6 @@
+{
+  "name": "Home Connect Oven Card",
+  "render_readme": true,
+  "filename": "home-connect-oven-card.js",
+  "homeassistant": "2024.4.0"
+}
