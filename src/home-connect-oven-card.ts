@@ -8,7 +8,7 @@ import {
   ResolvedEntities,
   DeviceInfo,
 } from "./types";
-import { getDeviceInfo, resolveEntities } from "./entity-resolver";
+import { getDeviceInfo, resolveEntities, getDeviceEntities } from "./entity-resolver";
 import { resolveOvenImage } from "./oven-image-map";
 import { cardStyles } from "./styles";
 
@@ -18,6 +18,10 @@ const w = window as unknown as {
     name: string;
     description: string;
     preview?: boolean;
+    getEntitySuggestion?: (
+      hass: HomeAssistant,
+      entityId: string
+    ) => null | { config: Record<string, unknown> };
   }>;
 };
 w.customCards = w.customCards || [];
@@ -26,6 +30,25 @@ w.customCards.push({
   name: "Home Connect Oven Card",
   description: "A visual card for Home Connect ovens with controls and sensors",
   preview: true,
+  getEntitySuggestion(hass: HomeAssistant, entityId: string) {
+    const ext = hass as HomeAssistant & {
+      entities?: Record<string, { device_id: string | null; platform?: string }>;
+    };
+    const entry = ext.entities?.[entityId];
+    if (!entry?.device_id || entry.platform !== "home_connect") return null;
+
+    const deviceId = entry.device_id;
+    const deviceEntityIds = getDeviceEntities(hass, deviceId);
+    const isOven = deviceEntityIds.some(
+      (e) =>
+        /_oven_/i.test(e) ||
+        /_current_cavity_temperature$/.test(e) ||
+        /_setpoint_temperature$/.test(e)
+    );
+    if (!isOven) return null;
+
+    return { config: { type: `custom:${CARD_NAME}`, device_id: deviceId } };
+  },
 });
 
 console.info(
