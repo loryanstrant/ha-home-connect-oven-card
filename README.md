@@ -1,6 +1,6 @@
 # Home Connect Oven Card
 
-A visual Lovelace card for Home Assistant that surfaces the **Home Connect** integration's oven entities in one place — picture of your oven, big-button controls, and a configurable strip of sensor tiles.
+A visual Lovelace card for Home Assistant that surfaces your **Home Connect** oven's entities in one place — picture of your oven, big-button controls, and a configurable strip of sensor tiles. Works with both the official cloud **Home Connect** integration and the community **Home Connect Local** (`homeconnect_ws`) integration.
 
 ## Screenshots
 
@@ -24,7 +24,13 @@ A visual Lovelace card for Home Assistant that surfaces the **Home Connect** int
 ## Requirements
 
 - Home Assistant `2024.4` or newer.
-- The [Home Connect integration](https://www.home-assistant.io/integrations/home_connect) installed and at least one oven added.
+- One of these integrations installed, with at least one oven added:
+  - the official [Home Connect integration](https://www.home-assistant.io/integrations/home_connect) (cloud), or
+  - the community **Home Connect Local** (`homeconnect_ws`) integration.
+
+Both are auto-detected in the device picker, and the card auto-resolves each integration's
+entity names (they differ slightly). If a control doesn't resolve on your setup, pin it
+explicitly with the `entities:` override block (see below).
 
 ## Installation
 

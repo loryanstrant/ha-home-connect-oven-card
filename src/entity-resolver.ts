@@ -57,10 +57,16 @@ export function resolveEntities(
   for (const [key, patterns] of Object.entries(ENTITY_KEY_PATTERNS)) {
     const k = key as keyof ResolvedEntities;
     if (resolved[k]) continue;
-    const match = entityIds.find((id) =>
-      patterns.some((re) => re.test(id))
-    );
-    if (match) resolved[k] = match;
+    // Match patterns in priority order: the first pattern to find an entity
+    // wins, so more-specific names (e.g. the cloud integration's) take
+    // precedence over their Local-integration fallbacks.
+    for (const re of patterns) {
+      const match = entityIds.find((id) => re.test(id));
+      if (match) {
+        resolved[k] = match;
+        break;
+      }
+    }
   }
   return resolved;
 }
@@ -70,7 +76,13 @@ export function findHomeConnectOvenDevices(hass: HomeAssistant): DeviceInfo[] {
   if (!ext.devices || !ext.entities) return [];
   const homeConnectDeviceIds = new Set<string>();
   for (const ent of Object.values(ext.entities)) {
-    if (ent.platform === "home_connect" && ent.device_id) {
+    // "home_connect" is the official cloud integration; "homeconnect_ws" is
+    // the Home Connect Local (websocket) integration. Both expose ovens.
+    if (
+      (ent.platform === "home_connect" ||
+        ent.platform === "homeconnect_ws") &&
+      ent.device_id
+    ) {
       homeConnectDeviceIds.add(ent.device_id);
     }
   }

@@ -1,6 +1,6 @@
 {
   "name": "home-connect-oven-card",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A visual Lovelace card for Home Connect ovens",
   "main": "dist/home-connect-oven-card.js",
   "scripts": {

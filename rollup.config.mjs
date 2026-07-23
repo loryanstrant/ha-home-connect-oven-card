@@ -12,6 +12,7 @@ export default {
     file: "dist/home-connect-oven-card.js",
     format: "es",
     sourcemap: dev,
+    inlineDynamicImports: true,
   },
   plugins: [
     resolve(),
