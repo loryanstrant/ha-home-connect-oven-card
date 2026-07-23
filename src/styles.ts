@@ -197,6 +197,13 @@ export const cardStyles = css`
     outline: none;
   }
 
+  /* The native option popup otherwise inherits light text on a white
+     background; pin it to theme colours so it's legible in dark and light. */
+  .control select option {
+    background-color: var(--card-background-color, #fff);
+    color: var(--primary-text-color);
+  }
+
   .temp-row {
     display: flex;
     align-items: center;

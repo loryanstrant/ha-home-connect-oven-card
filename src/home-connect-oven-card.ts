@@ -112,9 +112,23 @@ export class HomeConnectOvenCard extends LitElement {
 
   private _formatProgramName(raw?: string): string {
     if (!raw) return "—";
-    const m = raw.match(/Program\.([^.]+)\.([^.]+)$/);
-    if (m) return m[2].replace(/([A-Z])/g, " $1").trim();
-    return raw;
+    // Cloud Home Connect: "Cooking.Oven.Program.HeatingMode.HotAir" → "Hot Air"
+    const dotted = raw.match(/Program\.(?:[^.]+\.)*([^.]+)$/);
+    if (dotted) return dotted[1].replace(/([A-Z])/g, " $1").trim();
+    // Favourites: "favorite_001" → "Favorite 1"
+    const fav = raw.match(/^favou?rite[_-]?0*(\d+)$/i);
+    if (fav) return `Favorite ${parseInt(fav[1], 10)}`;
+    // Home Connect Local (homeconnect_ws) snake_case, e.g.
+    // "cooking_oven_program_heating_mode_hot_air" → "Heating Mode Hot Air".
+    // Strip the leading category so only the program part remains.
+    const cleaned = raw
+      .replace(/^cooking_[a-z0-9]+_program_/, "")
+      .replace(/^oven_program_/, "")
+      .replace(/^cooking_oven_program_/, "")
+      .replace(/_/g, " ")
+      .trim();
+    if (!cleaned) return raw;
+    return cleaned.replace(/\b\w/g, (c) => c.toUpperCase());
   }
 
   private _formatRemainingTime(stateVal?: string): string {
