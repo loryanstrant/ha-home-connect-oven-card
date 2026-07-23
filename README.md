@@ -4,12 +4,12 @@ A visual Lovelace card for Home Assistant that surfaces your **Home Connect** ov
 
 ## Screenshots
 
-> These are design mockups of the card layout — not screenshots from a live Home Assistant instance. The oven illustration is drawn for the docs; in the real card the device's product photo is fetched from BSH's CDN (see [Image matching](#image-matching)).
+> Live screenshots from Home Assistant — a Bosch Series 8 oven surfaced through the Home Connect Local (`homeconnect_ws`) integration, with the oven's product photo set via `image_url`.
 
 | Idle (oven off) | Running (program active) | Door open |
 | :---: | :---: | :---: |
 | ![Idle state](screenshots/card-idle.png) | ![Running state](screenshots/card-running.png) | ![Door open state](screenshots/card-door-open.png) |
-| Title, status pill, controls grid, sensor strip with placeholders. | Progress bar across the image, Pause + Stop buttons, live remaining time and progress. | Red "Door open" status pill, red door indicator, Start button dimmed. |
+| Oven off — product photo, controls grid and sensor tiles. | A program is running — the image glows warm, with a live progress bar and Pause + Stop. | Door open — red status pill, red door indicator and a red wash over the image. |
 
 ## Features
 
