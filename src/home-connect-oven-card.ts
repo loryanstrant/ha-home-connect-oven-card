@@ -9,7 +9,6 @@ import {
   DeviceInfo,
 } from "./types";
 import { getDeviceInfo, resolveEntities } from "./entity-resolver";
-import { resolveOvenImage } from "./oven-image-map";
 import { cardStyles } from "./styles";
 
 const w = window as unknown as {
@@ -38,6 +37,7 @@ console.info(
 export class HomeConnectOvenCard extends LitElement {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() private _config?: HomeConnectOvenCardConfig;
+  @state() private _imageFailed = false;
 
   public static styles = cardStyles;
 
@@ -60,6 +60,8 @@ export class HomeConnectOvenCard extends LitElement {
 
   public setConfig(config: HomeConnectOvenCardConfig): void {
     if (!config) throw new Error("Invalid configuration");
+    // Give a changed image URL a fresh chance to load.
+    if (config.image_url !== this._config?.image_url) this._imageFailed = false;
     this._config = {
       show_image: true,
       show_controls: true,
@@ -164,9 +166,7 @@ export class HomeConnectOvenCard extends LitElement {
 
     const ent = this._entities;
     const op = this._operationLabel();
-    const image =
-      this._config.image_url ||
-      resolveOvenImage(device.model, device.manufacturer, device.model_id);
+    const image = this._config.image_url ?? null;
     const progressRaw = this._stateOf(ent.program_progress);
     const progress = progressRaw ? parseFloat(progressRaw) : NaN;
 
@@ -191,8 +191,9 @@ export class HomeConnectOvenCard extends LitElement {
       <div>
         <div class="title">${this._config?.name || device.name}</div>
         <div class="subtitle">
-          ${[device.manufacturer, device.model].filter(Boolean).join(" • ") ||
-          "Home Connect"}
+          ${[device.manufacturer, device.model_id || device.model]
+            .filter(Boolean)
+            .join(" • ") || "Home Connect"}
         </div>
       </div>
       <div class="status-pill ${op.cls}">${op.label}</div>
@@ -203,10 +204,18 @@ export class HomeConnectOvenCard extends LitElement {
     image: string | null,
     progress: number
   ): TemplateResult {
+    const showImage = image && !this._imageFailed;
     return html`<div class="image-wrap">
-      ${image
-        ? html`<img src=${image} alt="Oven" loading="lazy" />`
-        : html`<div class="image-placeholder">No image for this model</div>`}
+      ${showImage
+        ? html`<img
+            src=${image}
+            alt="Oven"
+            loading="lazy"
+            @error=${() => {
+              this._imageFailed = true;
+            }}
+          />`
+        : html`<ha-icon class="oven-icon" icon="mdi:toaster-oven"></ha-icon>`}
       ${!Number.isNaN(progress) && progress > 0 && progress < 100
         ? html`<div class="progress-overlay">
             <div class="bar" style="width:${progress}%"></div>

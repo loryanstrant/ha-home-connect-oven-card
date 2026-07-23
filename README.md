@@ -14,8 +14,7 @@ A visual Lovelace card for Home Assistant that surfaces your **Home Connect** ov
 ## Features
 
 - **Auto-detects oven entities** from a single device picker — no per-entity wiring.
-- **Bundled image lookup** for Bosch, Siemens, Neff and Gaggenau ovens, matched on model + manufacturer.
-- **Custom image override** when you want to point at your own photo URL.
+- **Optional oven photo** — set `image_url` to a picture of your oven; otherwise a clean built-in oven icon is shown.
 - **Visual controls**: power switch, program selector, target temperature slider, child lock, start / pause / resume / stop buttons.
 - **Door state** indicator (with a red pill in the header when the door is open).
 - **Configurable sensor tiles** — pick any subset of operation state, remaining time, progress, current cavity temperature, etc.
@@ -114,29 +113,20 @@ Default sensors: `operation_state`, `remaining_program_time`, `program_progress`
 
 Available sensor keys: `operation_state`, `remaining_program_time`, `program_progress`, `current_cavity_temperature`, `active_program`, `selected_program`, `duration`, `door`. You can also pass a raw `entity_id` (e.g. `sensor.kitchen_oven_energy`) to add any sensor.
 
-## Image matching
+## Oven image
 
-The card matches your device's `model`/`model_id` and `manufacturer` against a bundled lookup of Bosch, Siemens, Neff and Gaggenau ovens. (The Home Connect Local integration reports a generic `model` like `Oven` but puts the real model number in `model_id`, so both are checked.) If your specific model isn't matched, the card falls back to a generic image for that manufacturer.
+By default the card shows a clean built-in oven icon. To display a real photo of your oven,
+set `image_url` to any image URL (visual editor: *Custom oven image URL*):
 
-If you'd prefer a specific photo, set `image_url` (visual editor: *Custom oven image URL*).
+```yaml
+type: custom:home-connect-oven-card
+device_id: 1234abcd5678ef90
+image_url: /local/my-oven.png   # e.g. a photo saved under <config>/www/
+```
 
-If you'd like a model added to the bundled lookup, open a PR editing `src/oven-image-map.ts`.
-
-### Bundled models
-
-| Manufacturer | Match pattern | Notes |
-| --- | --- | --- |
-| Bosch | `HBG7741B1A` (explicit) | Series 8 60cm Pyrolytic TFT + Air Fry. Uses the HBG7341B1 product shot — visually identical. Override with `image_url` if you'd like the exact HBG7741B1A photo. |
-| Bosch | `HBG?[6-9]…` | Series 6+ built-in ovens. |
-| Bosch | `HB[A-Z]?[5-6]…` | Series 6 (HBA57xx etc). |
-| Bosch | `HB[A-Z]?[3-4]…` | Series 4. |
-| Siemens | `HB[7-9]…` | iQ700. |
-| Siemens | `HB[5-6]…` | iQ500. |
-| Neff | `B[4-6][8-9]…` | N90 Slide&Hide. |
-| Neff | `B[1-3]…` | N70. |
-| Gaggenau | `BOP…` | 200 series. |
-
-Match order is top-down — the first matcher wins. Anything that doesn't match falls back to a generic image for the manufacturer.
+A good source is your appliance's product shot from the manufacturer's website or spec sheet.
+If the URL fails to load, the card falls back to the built-in icon rather than showing a broken
+image.
 
 ## Development
 

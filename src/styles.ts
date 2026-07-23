@@ -72,10 +72,10 @@ export const cardStyles = css`
     filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
   }
 
-  .image-wrap .image-placeholder {
+  .image-wrap .oven-icon {
+    --mdc-icon-size: 96px;
     color: var(--secondary-text-color);
-    font-size: 0.85rem;
-    opacity: 0.6;
+    opacity: 0.55;
   }
 
   .progress-overlay {
