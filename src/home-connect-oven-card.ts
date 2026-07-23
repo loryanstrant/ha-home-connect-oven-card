@@ -173,7 +173,7 @@ export class HomeConnectOvenCard extends LitElement {
     return html`<ha-card>
       ${this._renderHeader(device, op)}
       ${this._config.show_image !== false
-        ? this._renderImage(image, progress)
+        ? this._renderImage(image, progress, op.cls)
         : nothing}
       ${this._config.show_controls !== false
         ? this._renderControls(ent)
@@ -202,10 +202,11 @@ export class HomeConnectOvenCard extends LitElement {
 
   private _renderImage(
     image: string | null,
-    progress: number
+    progress: number,
+    stateCls = ""
   ): TemplateResult {
     const showImage = image && !this._imageFailed;
-    return html`<div class="image-wrap">
+    return html`<div class="image-wrap ${stateCls}">
       ${showImage
         ? html`<img
             src=${image}

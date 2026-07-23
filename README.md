@@ -128,6 +128,9 @@ A good source is your appliance's product shot from the manufacturer's website o
 If the URL fails to load, the card falls back to the built-in icon rather than showing a broken
 image.
 
+The image reacts to the oven's state: it glows warm (and gently pulses) while a program is
+running, and dims with a soft red wash when the door is open.
+
 ## Development
 
 ```bash
