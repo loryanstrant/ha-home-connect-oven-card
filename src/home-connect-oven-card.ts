@@ -9,7 +9,6 @@ import {
   DeviceInfo,
 } from "./types";
 import { getDeviceInfo, resolveEntities } from "./entity-resolver";
-import { resolveOvenImage } from "./oven-image-map";
 import { cardStyles } from "./styles";
 
 const w = window as unknown as {
@@ -38,6 +37,7 @@ console.info(
 export class HomeConnectOvenCard extends LitElement {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() private _config?: HomeConnectOvenCardConfig;
+  @state() private _imageFailed = false;
 
   public static styles = cardStyles;
 
@@ -60,6 +60,8 @@ export class HomeConnectOvenCard extends LitElement {
 
   public setConfig(config: HomeConnectOvenCardConfig): void {
     if (!config) throw new Error("Invalid configuration");
+    // Give a changed image URL a fresh chance to load.
+    if (config.image_url !== this._config?.image_url) this._imageFailed = false;
     this._config = {
       show_image: true,
       show_controls: true,
@@ -110,9 +112,23 @@ export class HomeConnectOvenCard extends LitElement {
 
   private _formatProgramName(raw?: string): string {
     if (!raw) return "—";
-    const m = raw.match(/Program\.([^.]+)\.([^.]+)$/);
-    if (m) return m[2].replace(/([A-Z])/g, " $1").trim();
-    return raw;
+    // Cloud Home Connect: "Cooking.Oven.Program.HeatingMode.HotAir" → "Hot Air"
+    const dotted = raw.match(/Program\.(?:[^.]+\.)*([^.]+)$/);
+    if (dotted) return dotted[1].replace(/([A-Z])/g, " $1").trim();
+    // Favourites: "favorite_001" → "Favorite 1"
+    const fav = raw.match(/^favou?rite[_-]?0*(\d+)$/i);
+    if (fav) return `Favorite ${parseInt(fav[1], 10)}`;
+    // Home Connect Local (homeconnect_ws) snake_case, e.g.
+    // "cooking_oven_program_heating_mode_hot_air" → "Heating Mode Hot Air".
+    // Strip the leading category so only the program part remains.
+    const cleaned = raw
+      .replace(/^cooking_[a-z0-9]+_program_/, "")
+      .replace(/^oven_program_/, "")
+      .replace(/^cooking_oven_program_/, "")
+      .replace(/_/g, " ")
+      .trim();
+    if (!cleaned) return raw;
+    return cleaned.replace(/\b\w/g, (c) => c.toUpperCase());
   }
 
   private _formatRemainingTime(stateVal?: string): string {
@@ -164,16 +180,14 @@ export class HomeConnectOvenCard extends LitElement {
 
     const ent = this._entities;
     const op = this._operationLabel();
-    const image =
-      this._config.image_url ||
-      resolveOvenImage(device.model, device.manufacturer);
+    const image = this._config.image_url ?? null;
     const progressRaw = this._stateOf(ent.program_progress);
     const progress = progressRaw ? parseFloat(progressRaw) : NaN;
 
     return html`<ha-card>
       ${this._renderHeader(device, op)}
       ${this._config.show_image !== false
-        ? this._renderImage(image, progress)
+        ? this._renderImage(image, progress, op.cls)
         : nothing}
       ${this._config.show_controls !== false
         ? this._renderControls(ent)
@@ -191,8 +205,9 @@ export class HomeConnectOvenCard extends LitElement {
       <div>
         <div class="title">${this._config?.name || device.name}</div>
         <div class="subtitle">
-          ${[device.manufacturer, device.model].filter(Boolean).join(" • ") ||
-          "Home Connect"}
+          ${[device.manufacturer, device.model_id || device.model]
+            .filter(Boolean)
+            .join(" • ") || "Home Connect"}
         </div>
       </div>
       <div class="status-pill ${op.cls}">${op.label}</div>
@@ -201,12 +216,21 @@ export class HomeConnectOvenCard extends LitElement {
 
   private _renderImage(
     image: string | null,
-    progress: number
+    progress: number,
+    stateCls = ""
   ): TemplateResult {
-    return html`<div class="image-wrap">
-      ${image
-        ? html`<img src=${image} alt="Oven" loading="lazy" />`
-        : html`<div class="image-placeholder">No image for this model</div>`}
+    const showImage = image && !this._imageFailed;
+    return html`<div class="image-wrap ${stateCls}">
+      ${showImage
+        ? html`<img
+            src=${image}
+            alt="Oven"
+            loading="lazy"
+            @error=${() => {
+              this._imageFailed = true;
+            }}
+          />`
+        : html`<ha-icon class="oven-icon" icon="mdi:toaster-oven"></ha-icon>`}
       ${!Number.isNaN(progress) && progress > 0 && progress < 100
         ? html`<div class="progress-overlay">
             <div class="bar" style="width:${progress}%"></div>

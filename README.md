@@ -1,6 +1,6 @@
 # Home Connect Oven Card
 
-A visual Lovelace card for Home Assistant that surfaces the **Home Connect** integration's oven entities in one place — picture of your oven, big-button controls, and a configurable strip of sensor tiles.
+A visual Lovelace card for Home Assistant that surfaces your **Home Connect** oven's entities in one place — picture of your oven, big-button controls, and a configurable strip of sensor tiles. Works with both the official cloud **Home Connect** integration and the community **Home Connect Local** (`homeconnect_ws`) integration.
 
 ## Screenshots
 
@@ -14,8 +14,7 @@ A visual Lovelace card for Home Assistant that surfaces the **Home Connect** int
 ## Features
 
 - **Auto-detects oven entities** from a single device picker — no per-entity wiring.
-- **Bundled image lookup** for Bosch, Siemens, Neff and Gaggenau ovens, matched on model + manufacturer.
-- **Custom image override** when you want to point at your own photo URL.
+- **Optional oven photo** — set `image_url` to a picture of your oven; otherwise a clean built-in oven icon is shown.
 - **Visual controls**: power switch, program selector, target temperature slider, child lock, start / pause / resume / stop buttons.
 - **Door state** indicator (with a red pill in the header when the door is open).
 - **Configurable sensor tiles** — pick any subset of operation state, remaining time, progress, current cavity temperature, etc.
@@ -24,7 +23,13 @@ A visual Lovelace card for Home Assistant that surfaces the **Home Connect** int
 ## Requirements
 
 - Home Assistant `2024.4` or newer.
-- The [Home Connect integration](https://www.home-assistant.io/integrations/home_connect) installed and at least one oven added.
+- One of these integrations installed, with at least one oven added:
+  - the official [Home Connect integration](https://www.home-assistant.io/integrations/home_connect) (cloud), or
+  - the community **Home Connect Local** (`homeconnect_ws`) integration.
+
+Both are auto-detected in the device picker, and the card auto-resolves each integration's
+entity names (they differ slightly). If a control doesn't resolve on your setup, pin it
+explicitly with the `entities:` override block (see below).
 
 ## Installation
 
@@ -108,29 +113,23 @@ Default sensors: `operation_state`, `remaining_program_time`, `program_progress`
 
 Available sensor keys: `operation_state`, `remaining_program_time`, `program_progress`, `current_cavity_temperature`, `active_program`, `selected_program`, `duration`, `door`. You can also pass a raw `entity_id` (e.g. `sensor.kitchen_oven_energy`) to add any sensor.
 
-## Image matching
+## Oven image
 
-The card matches your device's `model` and `manufacturer` against a bundled lookup of Bosch, Siemens, Neff and Gaggenau ovens. If your specific model isn't matched, the card falls back to a generic image for that manufacturer.
+By default the card shows a clean built-in oven icon. To display a real photo of your oven,
+set `image_url` to any image URL (visual editor: *Custom oven image URL*):
 
-If you'd prefer a specific photo, set `image_url` (visual editor: *Custom oven image URL*).
+```yaml
+type: custom:home-connect-oven-card
+device_id: 1234abcd5678ef90
+image_url: /local/my-oven.png   # e.g. a photo saved under <config>/www/
+```
 
-If you'd like a model added to the bundled lookup, open a PR editing `src/oven-image-map.ts`.
+A good source is your appliance's product shot from the manufacturer's website or spec sheet.
+If the URL fails to load, the card falls back to the built-in icon rather than showing a broken
+image.
 
-### Bundled models
-
-| Manufacturer | Match pattern | Notes |
-| --- | --- | --- |
-| Bosch | `HBG7741B1A` (explicit) | Series 8 60cm Pyrolytic TFT + Air Fry. Uses the HBG7341B1 product shot — visually identical. Override with `image_url` if you'd like the exact HBG7741B1A photo. |
-| Bosch | `HBG?[6-9]…` | Series 6+ built-in ovens. |
-| Bosch | `HB[A-Z]?[5-6]…` | Series 6 (HBA57xx etc). |
-| Bosch | `HB[A-Z]?[3-4]…` | Series 4. |
-| Siemens | `HB[7-9]…` | iQ700. |
-| Siemens | `HB[5-6]…` | iQ500. |
-| Neff | `B[4-6][8-9]…` | N90 Slide&Hide. |
-| Neff | `B[1-3]…` | N70. |
-| Gaggenau | `BOP…` | 200 series. |
-
-Match order is top-down — the first matcher wins. Anything that doesn't match falls back to a generic image for the manufacturer.
+The image reacts to the oven's state: it glows warm (and gently pulses) while a program is
+running, and dims with a soft red wash when the door is open.
 
 ## Development
 

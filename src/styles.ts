@@ -70,12 +70,70 @@ export const cardStyles = css`
     max-height: 180px;
     object-fit: contain;
     filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
+    position: relative;
+    z-index: 1;
+    transition: filter 0.4s ease;
   }
 
-  .image-wrap .image-placeholder {
+  .image-wrap .oven-icon {
+    --mdc-icon-size: 96px;
     color: var(--secondary-text-color);
-    font-size: 0.85rem;
-    opacity: 0.6;
+    opacity: 0.55;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* State-reactive backlight behind the oven image */
+  .image-wrap.running::before,
+  .image-wrap.paused::before,
+  .image-wrap.door-open::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .image-wrap.running::before,
+  .image-wrap.paused::before {
+    background: radial-gradient(
+      ellipse 55% 45% at 50% 58%,
+      rgba(255, 150, 40, 0.5),
+      rgba(255, 120, 0, 0) 70%
+    );
+  }
+
+  .image-wrap.running::before {
+    animation: oven-pulse 2.4s ease-in-out infinite;
+  }
+
+  .image-wrap.running img,
+  .image-wrap.paused img {
+    filter: brightness(1.06) drop-shadow(0 6px 16px rgba(255, 140, 0, 0.35));
+  }
+
+  /* Door open: dim the oven and cast a soft red wash */
+  .image-wrap.door-open::before {
+    background: radial-gradient(
+      ellipse 60% 50% at 50% 55%,
+      rgba(244, 67, 54, 0.28),
+      rgba(244, 67, 54, 0) 72%
+    );
+  }
+
+  .image-wrap.door-open img {
+    filter: brightness(0.8) saturate(1.05)
+      drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
+  }
+
+  @keyframes oven-pulse {
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 
   .progress-overlay {
@@ -87,6 +145,7 @@ export const cardStyles = css`
     border-radius: 2px;
     background: var(--divider-color);
     overflow: hidden;
+    z-index: 2;
   }
 
   .progress-overlay .bar {
@@ -136,6 +195,13 @@ export const cardStyles = css`
     font: inherit;
     width: 100%;
     outline: none;
+  }
+
+  /* The native option popup otherwise inherits light text on a white
+     background; pin it to theme colours so it's legible in dark and light. */
+  .control select option {
+    background-color: var(--card-background-color, #fff);
+    color: var(--primary-text-color);
   }
 
   .temp-row {
