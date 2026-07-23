@@ -166,7 +166,7 @@ export class HomeConnectOvenCard extends LitElement {
     const op = this._operationLabel();
     const image =
       this._config.image_url ||
-      resolveOvenImage(device.model, device.manufacturer);
+      resolveOvenImage(device.model, device.manufacturer, device.model_id);
     const progressRaw = this._stateOf(ent.program_progress);
     const progress = progressRaw ? parseFloat(progressRaw) : NaN;
 

@@ -37,5 +37,6 @@ export interface DeviceInfo {
   id: string;
   name: string;
   model: string | null;
+  model_id: string | null;
   manufacturer: string | null;
 }

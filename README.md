@@ -116,7 +116,7 @@ Available sensor keys: `operation_state`, `remaining_program_time`, `program_pro
 
 ## Image matching
 
-The card matches your device's `model` and `manufacturer` against a bundled lookup of Bosch, Siemens, Neff and Gaggenau ovens. If your specific model isn't matched, the card falls back to a generic image for that manufacturer.
+The card matches your device's `model`/`model_id` and `manufacturer` against a bundled lookup of Bosch, Siemens, Neff and Gaggenau ovens. (The Home Connect Local integration reports a generic `model` like `Oven` but puts the real model number in `model_id`, so both are checked.) If your specific model isn't matched, the card falls back to a generic image for that manufacturer.
 
 If you'd prefer a specific photo, set `image_url` (visual editor: *Custom oven image URL*).
 

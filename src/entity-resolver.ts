@@ -7,6 +7,7 @@ interface HassDevice {
   name: string | null;
   name_by_user: string | null;
   model: string | null;
+  model_id: string | null;
   manufacturer: string | null;
 }
 
@@ -32,6 +33,7 @@ export function getDeviceInfo(
     id: device.id,
     name: device.name_by_user || device.name || "Oven",
     model: device.model,
+    model_id: device.model_id,
     manufacturer: device.manufacturer,
   };
 }
@@ -102,6 +104,7 @@ export function findHomeConnectOvenDevices(hass: HomeAssistant): DeviceInfo[] {
       id: d.id,
       name: d.name_by_user || d.name || "Oven",
       model: d.model,
+      model_id: d.model_id,
       manufacturer: d.manufacturer,
     });
   }
