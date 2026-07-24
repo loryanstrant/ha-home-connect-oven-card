@@ -9,6 +9,7 @@ import {
   getDeviceEntities,
   resolveEntities,
 } from "./entity-resolver";
+import { prettifyLabel } from "./format";
 
 const SENSOR_CHOICES: { key: string; label: string }[] = [
   { key: "operation_state", label: "Operation state" },
@@ -102,22 +103,10 @@ export class HomeConnectOvenCardEditor extends LitElement {
     this._update({ sensors: Array.from(current) });
   }
 
-  // Resolve a picked media item to a servable URL and store it as image_url.
-  private async _pickMedia(ev: CustomEvent): Promise<void> {
-    const value = ev.detail?.value as
-      | { media_content_id?: string }
-      | undefined;
-    const mediaContentId = value?.media_content_id;
-    if (!mediaContentId) return;
-    try {
-      const res = (await this.hass.callWS({
-        type: "media_source/resolve_media",
-        media_content_id: mediaContentId,
-      })) as { url?: string };
-      if (res?.url) this._update({ image_url: res.url });
-    } catch (err) {
-      // Leave the existing value if the media can't be resolved.
-    }
+  // The image selector emits the chosen file's URL/path as its value.
+  private _pickImage(ev: CustomEvent): void {
+    const url = ev.detail?.value as string | undefined;
+    this._update({ image_url: url || undefined });
   }
 
   protected render(): TemplateResult {
@@ -193,8 +182,9 @@ export class HomeConnectOvenCardEditor extends LitElement {
         <label>Oven image (optional)</label>
         <ha-selector
           .hass=${this.hass}
-          .selector=${{ media: {} }}
-          @value-changed=${this._pickMedia}
+          .selector=${{ image: {} }}
+          .value=${this._config.image_url}
+          @value-changed=${this._pickImage}
         ></ha-selector>
         <input
           type="text"
@@ -206,8 +196,8 @@ export class HomeConnectOvenCardEditor extends LitElement {
             })}
         />
         <div class="hint">
-          Browse your media to pick a photo, or paste any image URL. Leave blank
-          to show a built-in oven icon.
+          Pick or upload an image file, or paste any image URL / path. Leave
+          blank to show a built-in oven icon.
         </div>
       </div>
 
@@ -260,9 +250,10 @@ export class HomeConnectOvenCardEditor extends LitElement {
             <label>Other device entities</label>
             <div class="sensors">
               ${extraEntities.map((entityId) => {
-                const name =
+                const name = prettifyLabel(
                   (this.hass.states[entityId]?.attributes
-                    ?.friendly_name as string) || entityId;
+                    ?.friendly_name as string) || entityId
+                );
                 return html`<label class="sensor-chip">
                   <input
                     type="checkbox"
