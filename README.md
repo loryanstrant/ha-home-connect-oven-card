@@ -111,12 +111,13 @@ entities:
 
 Default sensors: `operation_state`, `remaining_program_time`, `program_progress`, `current_cavity_temperature`.
 
-Available sensor keys: `operation_state`, `remaining_program_time`, `program_progress`, `current_cavity_temperature`, `active_program`, `selected_program`, `duration`, `door`. You can also pass a raw `entity_id` (e.g. `sensor.kitchen_oven_energy`) to add any sensor.
+Available sensor keys: `operation_state`, `remaining_program_time`, `program_progress`, `current_cavity_temperature`, `active_program`, `selected_program`, `duration`, `door`. You can also pass a raw `entity_id` (e.g. `sensor.kitchen_oven_energy`) to add any sensor — the visual editor lists **every** entity your oven exposes under *Other device entities*, so any Home Connect sensor, switch, number or select can be shown as a tile. Tile values are formatted the same way Home Assistant shows them (e.g. `Standby`, `Medium`, `On`).
 
 ## Oven image
 
 By default the card shows a clean built-in oven icon. To display a real photo of your oven,
-set `image_url` to any image URL (visual editor: *Custom oven image URL*):
+either **browse your media** in the visual editor (the *Oven image* picker opens Home
+Assistant's media browser) or set `image_url` to any image URL:
 
 ```yaml
 type: custom:home-connect-oven-card
