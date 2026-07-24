@@ -10,6 +10,12 @@ import {
 } from "./types";
 import { getDeviceInfo, resolveEntities } from "./entity-resolver";
 import { cardStyles } from "./styles";
+import { prettifyLabel } from "./format";
+
+type EntityRow = HTMLElement & { hass?: unknown };
+interface CardRowHelpers {
+  createRowElement: (config: unknown) => EntityRow;
+}
 
 const w = window as unknown as {
   customCards?: Array<{
@@ -38,6 +44,17 @@ export class HomeConnectOvenCard extends LitElement {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() private _config?: HomeConnectOvenCardConfig;
   @state() private _imageFailed = false;
+  @state() private _rowHelpers?: CardRowHelpers;
+  private _rowCache = new Map<string, EntityRow>();
+
+  private async _ensureRowHelpers(): Promise<void> {
+    const loader = (window as unknown as {
+      loadCardHelpers?: () => Promise<CardRowHelpers>;
+    }).loadCardHelpers;
+    if (this._rowHelpers || !loader) return;
+    this._rowHelpers = await loader();
+    this.requestUpdate();
+  }
 
   public static styles = cardStyles;
 
@@ -461,13 +478,47 @@ export class HomeConnectOvenCard extends LitElement {
   private _renderSensors(ent: Partial<ResolvedEntities>): TemplateResult {
     const wanted = this._config?.sensors ?? DEFAULT_SENSORS;
     if (!wanted.length) return html``;
+    // Known keys → compact status tiles; raw entity_ids (added device
+    // entities) → native interactive rows (toggles, selects, numbers…).
     const tiles: TemplateResult[] = [];
+    const rowEntities: string[] = [];
     for (const key of wanted) {
-      const tile = this._renderSensorTile(key, ent);
-      if (tile) tiles.push(tile);
+      if (key.includes(".")) {
+        rowEntities.push(key);
+      } else {
+        const tile = this._renderSensorTile(key, ent);
+        if (tile) tiles.push(tile);
+      }
     }
-    if (!tiles.length) return html``;
-    return html`<div class="sensor-list">${tiles}</div>`;
+    return html`
+      ${tiles.length
+        ? html`<div class="sensor-list">${tiles}</div>`
+        : nothing}
+      ${rowEntities.length ? this._renderEntityRows(rowEntities) : nothing}
+    `;
+  }
+
+  private _renderEntityRows(entityIds: string[]): TemplateResult {
+    if (!this._rowHelpers) {
+      this._ensureRowHelpers();
+      return html``;
+    }
+    const rows = entityIds.map((entityId) => {
+      if (!this.hass.states[entityId]) return nothing;
+      let row = this._rowCache.get(entityId);
+      if (!row) {
+        const friendly = this.hass.states[entityId].attributes
+          ?.friendly_name as string | undefined;
+        row = this._rowHelpers!.createRowElement({
+          entity: entityId,
+          name: prettifyLabel(friendly || entityId),
+        });
+        this._rowCache.set(entityId, row);
+      }
+      row.hass = this.hass;
+      return html`<div class="entity-row">${row}</div>`;
+    });
+    return html`<div class="entity-rows">${rows}</div>`;
   }
 
   private _renderSensorTile(
@@ -506,7 +557,7 @@ export class HomeConnectOvenCard extends LitElement {
     }
     return html`<div class="sensor">
       <div class="name">
-        ${this._prettifyLabel(friendly.replace(/^.*?_/, "").replace(/_/g, " "))}
+        ${prettifyLabel(friendly.replace(/^.*?_/, "").replace(/_/g, " "))}
       </div>
       <div class="reading">${reading}</div>
     </div>`;
@@ -523,12 +574,6 @@ export class HomeConnectOvenCard extends LitElement {
     return h > 0 ? `${h} h ${m} min` : `${m} min`;
   }
 
-  // Tidy a few Home Connect concatenated words in entity labels.
-  private _prettifyLabel(label: string): string {
-    return label
-      .replace(/coolingfan/gi, "Cooling fan")
-      .replace(/runtime/gi, "run time");
-  }
 }
 
 declare global {

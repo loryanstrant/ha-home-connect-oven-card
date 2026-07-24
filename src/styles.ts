@@ -266,6 +266,13 @@ export const cardStyles = css`
     padding: 4px 16px 16px;
   }
 
+  .entity-rows {
+    padding: 4px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
   .sensor {
     background: var(--secondary-background-color);
     border-radius: 10px;
