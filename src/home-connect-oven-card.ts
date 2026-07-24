@@ -491,6 +491,8 @@ export class HomeConnectOvenCard extends LitElement {
       reading = `${Math.round(Number(stateObj.state) || 0)}%`;
     } else if (key === "operation_state") {
       reading = stateObj.state.replace(/_/g, " ");
+    } else if (key === "duration" || /^number\..*_duration$/.test(entityId)) {
+      reading = this._formatDurationSeconds(stateObj.state);
     } else {
       const fes = (this.hass as unknown as {
         formatEntityState?: (s: unknown) => string;
@@ -503,9 +505,29 @@ export class HomeConnectOvenCard extends LitElement {
       }
     }
     return html`<div class="sensor">
-      <div class="name">${friendly.replace(/^.*?_/, "").replace(/_/g, " ")}</div>
+      <div class="name">
+        ${this._prettifyLabel(friendly.replace(/^.*?_/, "").replace(/_/g, " "))}
+      </div>
       <div class="reading">${reading}</div>
     </div>`;
+  }
+
+  // A duration in seconds → "1 h 0 min" / "45 min".
+  private _formatDurationSeconds(stateVal?: string): string {
+    if (!stateVal || stateVal === "unknown" || stateVal === "unavailable")
+      return "—";
+    const total = Math.round(parseFloat(stateVal));
+    if (Number.isNaN(total)) return stateVal;
+    const h = Math.floor(total / 3600);
+    const m = Math.round((total % 3600) / 60);
+    return h > 0 ? `${h} h ${m} min` : `${m} min`;
+  }
+
+  // Tidy a few Home Connect concatenated words in entity labels.
+  private _prettifyLabel(label: string): string {
+    return label
+      .replace(/coolingfan/gi, "Cooling fan")
+      .replace(/runtime/gi, "run time");
   }
 }
 
