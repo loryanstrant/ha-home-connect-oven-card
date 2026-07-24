@@ -1,4 +1,4 @@
-export const CARD_VERSION = "0.2.2";
+export const CARD_VERSION = "0.2.3";
 export const CARD_NAME = "home-connect-oven-card";
 export const EDITOR_NAME = "home-connect-oven-card-editor";
 
