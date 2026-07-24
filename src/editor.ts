@@ -102,6 +102,24 @@ export class HomeConnectOvenCardEditor extends LitElement {
     this._update({ sensors: Array.from(current) });
   }
 
+  // Resolve a picked media item to a servable URL and store it as image_url.
+  private async _pickMedia(ev: CustomEvent): Promise<void> {
+    const value = ev.detail?.value as
+      | { media_content_id?: string }
+      | undefined;
+    const mediaContentId = value?.media_content_id;
+    if (!mediaContentId) return;
+    try {
+      const res = (await this.hass.callWS({
+        type: "media_source/resolve_media",
+        media_content_id: mediaContentId,
+      })) as { url?: string };
+      if (res?.url) this._update({ image_url: res.url });
+    } catch (err) {
+      // Leave the existing value if the media can't be resolved.
+    }
+  }
+
   protected render(): TemplateResult {
     if (!this.hass || !this._config) return html``;
 
@@ -116,6 +134,15 @@ export class HomeConnectOvenCardEditor extends LitElement {
     const allEntities = this._config.device_id
       ? getDeviceEntities(this.hass, this._config.device_id)
       : [];
+    // Every other entity on the device that isn't already one of the known
+    // sensor keys — so any Home Connect entity can be added as a tile.
+    const resolvedIds = new Set(
+      Object.values(resolved).filter(Boolean) as string[]
+    );
+    const extraEntities = allEntities
+      .filter((e) => /^(sensor|binary_sensor|number|select|switch)\./.test(e))
+      .filter((e) => !resolvedIds.has(e))
+      .sort();
 
     return html`
       <div class="row">
@@ -163,18 +190,24 @@ export class HomeConnectOvenCardEditor extends LitElement {
       </div>
 
       <div class="row">
-        <label>Custom oven image URL (optional)</label>
+        <label>Oven image (optional)</label>
+        <ha-selector
+          .hass=${this.hass}
+          .selector=${{ media: {} }}
+          @value-changed=${this._pickMedia}
+        ></ha-selector>
         <input
           type="text"
           .value=${this._config.image_url ?? ""}
-          placeholder="Overrides the bundled image"
+          placeholder="…or paste an image URL / path"
           @input=${(e: Event) =>
             this._update({
               image_url: (e.target as HTMLInputElement).value || undefined,
             })}
         />
         <div class="hint">
-          Leave blank to use the bundled image matched on model + manufacturer.
+          Browse your media to pick a photo, or paste any image URL. Leave blank
+          to show a built-in oven icon.
         </div>
       </div>
 
@@ -221,6 +254,34 @@ export class HomeConnectOvenCardEditor extends LitElement {
           Greyed-out sensors aren't exposed by the selected device.
         </div>
       </div>
+
+      ${extraEntities.length
+        ? html`<div class="row">
+            <label>Other device entities</label>
+            <div class="sensors">
+              ${extraEntities.map((entityId) => {
+                const name =
+                  (this.hass.states[entityId]?.attributes
+                    ?.friendly_name as string) || entityId;
+                return html`<label class="sensor-chip">
+                  <input
+                    type="checkbox"
+                    .checked=${selectedSensors.has(entityId)}
+                    @change=${(e: Event) =>
+                      this._toggleSensor(
+                        entityId,
+                        (e.target as HTMLInputElement).checked
+                      )}
+                  />
+                  <span>${name}</span>
+                </label>`;
+              })}
+            </div>
+            <div class="hint">
+              Any other sensor, switch, number or select exposed by the oven.
+            </div>
+          </div>`
+        : ""}
     `;
   }
 

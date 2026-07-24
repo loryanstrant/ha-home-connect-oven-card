@@ -110,8 +110,20 @@ export class HomeConnectOvenCard extends LitElement {
     this.hass.callService(domain, service, data);
   }
 
-  private _formatProgramName(raw?: string): string {
+  private _formatProgramName(
+    raw?: string,
+    stateObj?: { entity_id: string; state: string; attributes: Record<string, unknown> }
+  ): string {
     if (!raw) return "—";
+    // Prefer Home Assistant's own localized label when the integration ships
+    // a translation for this option — so we match what HA shows elsewhere.
+    const fes = (this.hass as unknown as {
+      formatEntityState?: (s: unknown, v?: string) => string;
+    }).formatEntityState;
+    if (stateObj && typeof fes === "function") {
+      const localized = fes.call(this.hass, stateObj, raw);
+      if (localized && localized !== raw) return localized;
+    }
     // Cloud Home Connect: "Cooking.Oven.Program.HeatingMode.HotAir" → "Hot Air"
     const dotted = raw.match(/Program\.(?:[^.]+\.)*([^.]+)$/);
     if (dotted) return dotted[1].replace(/([A-Z])/g, " $1").trim();
@@ -319,13 +331,13 @@ export class HomeConnectOvenCard extends LitElement {
         }}
       >
         ${options.length === 0
-          ? html`<option>${this._formatProgramName(current)}</option>`
+          ? html`<option>${this._formatProgramName(current, stateObj)}</option>`
           : options.map(
               (opt) => html`<option
                 value=${opt}
                 ?selected=${opt === current}
               >
-                ${this._formatProgramName(opt)}
+                ${this._formatProgramName(opt, stateObj)}
               </option>`
             )}
       </select>
@@ -480,8 +492,15 @@ export class HomeConnectOvenCard extends LitElement {
     } else if (key === "operation_state") {
       reading = stateObj.state.replace(/_/g, " ");
     } else {
-      const unit = stateObj.attributes?.unit_of_measurement as string;
-      reading = unit ? `${stateObj.state} ${unit}` : stateObj.state;
+      const fes = (this.hass as unknown as {
+        formatEntityState?: (s: unknown) => string;
+      }).formatEntityState;
+      if (typeof fes === "function") {
+        reading = fes.call(this.hass, stateObj);
+      } else {
+        const unit = stateObj.attributes?.unit_of_measurement as string;
+        reading = unit ? `${stateObj.state} ${unit}` : stateObj.state;
+      }
     }
     return html`<div class="sensor">
       <div class="name">${friendly.replace(/^.*?_/, "").replace(/_/g, " ")}</div>
