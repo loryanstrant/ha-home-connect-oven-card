@@ -60,11 +60,13 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Create Release
+      # Only build and attach the card. Release notes are written by hand for
+      # the HACS user (see "Cutting a release" in the README) — do NOT enable
+      # generate_release_notes, it overwrites those notes with a commit stub.
+      - name: Attach build to release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             dist/home-connect-oven-card.js
-          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
