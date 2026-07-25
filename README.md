@@ -50,14 +50,22 @@ HACS will fetch `home-connect-oven-card.js` (either the GitHub release asset bui
 
 ### Cutting a release
 
-The included `release.yml` workflow runs `npm ci && npm run build` whenever you push a `v*` tag and attaches `dist/home-connect-oven-card.js` to the GitHub release. Typical flow:
+Bump `CARD_VERSION` in `src/const.ts` and `version` in `package.json` (they move together),
+then tag:
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.2.5
+git push origin v0.2.5
 ```
 
-HACS then picks up the new version on its next scan.
+The `build.yml` workflow runs `npm ci && npm run build` on a `v*` tag and attaches
+`dist/home-connect-oven-card.js` to the release. HACS picks up the new version on its next scan.
+
+**Release notes are written by hand**, for the person installing the card — a short `##`
+headline per change saying what was wrong or missing and what's different now, in plain
+language rather than a list of commits. Apply the same text to both the Gitea and GitHub
+releases. The workflow deliberately does **not** set `generate_release_notes`: it would replace
+those notes with an auto-generated changelog stub.
 
 ## Usage
 
