@@ -2,7 +2,14 @@ import { LitElement, html, nothing, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { HomeAssistant } from "custom-card-helpers";
 
-import { CARD_NAME, CARD_VERSION, DEFAULT_SENSORS, EDITOR_NAME } from "./const";
+import {
+  CARD_NAME,
+  CARD_VERSION,
+  DEFAULT_SENSORS,
+  EDITOR_NAME,
+  TOGGLE_DEFAULTS,
+} from "./const";
+import { loadHaComponents } from "./ha-form";
 import {
   HomeConnectOvenCardConfig,
   ResolvedEntities,
@@ -59,6 +66,9 @@ export class HomeConnectOvenCard extends LitElement {
   public static styles = cardStyles;
 
   public static async getConfigElement(): Promise<HTMLElement> {
+    // Ask Home Assistant for the chunk defining ha-form and the entity picker
+    // before the editor is built, rather than after. See loadHaComponents.
+    loadHaComponents();
     await import("./editor");
     return document.createElement(EDITOR_NAME);
   }
@@ -66,11 +76,6 @@ export class HomeConnectOvenCard extends LitElement {
   public static getStubConfig(): Partial<HomeConnectOvenCardConfig> {
     return {
       type: `custom:${CARD_NAME}`,
-      show_image: true,
-      show_controls: true,
-      show_program_select: true,
-      show_temperature: true,
-      show_door: true,
       sensors: DEFAULT_SENSORS,
     };
   }
@@ -80,12 +85,7 @@ export class HomeConnectOvenCard extends LitElement {
     // Give a changed image URL a fresh chance to load.
     if (config.image_url !== this._config?.image_url) this._imageFailed = false;
     this._config = {
-      show_image: true,
-      show_controls: true,
-      show_program_select: true,
-      show_temperature: true,
-      show_door: true,
-      show_child_lock: false,
+      ...TOGGLE_DEFAULTS,
       sensors: DEFAULT_SENSORS,
       ...config,
     };

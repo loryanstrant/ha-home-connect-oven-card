@@ -8,6 +8,9 @@ A visual Lovelace card for the **Home Connect** integration. Pick an oven device
 2. Edit a dashboard → **Add Card** → search for **Home Connect Oven Card**.
 3. Pick your oven from the device dropdown — entities are auto-resolved.
 
+The editor is built on Home Assistant's own `ha-form`, so every control matches the rest of the
+card dialog and follows your theme.
+
 ## Configuration
 
 | Option | Type | Default |

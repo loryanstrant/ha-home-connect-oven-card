@@ -18,7 +18,7 @@ A visual Lovelace card for Home Assistant that surfaces your **Home Connect** ov
 - **Visual controls**: power switch, program selector, target temperature slider, child lock, start / pause / resume / stop buttons.
 - **Door state** indicator (with a red pill in the header when the door is open).
 - **Configurable sensor tiles** — pick any subset of operation state, remaining time, progress, current cavity temperature, etc.
-- **Visual editor** — set everything from the Lovelace UI.
+- **Visual editor** built on Home Assistant's own `ha-form` — every control is an HA component and follows your theme.
 
 ## Requirements
 
@@ -40,7 +40,7 @@ explicitly with the `entities:` override block (see below).
 3. Add the repo URL with category **Lovelace** (a.k.a. Dashboard plugin).
 4. Install **Home Connect Oven Card**, then **hard-refresh** your browser.
 
-HACS will fetch `home-connect-oven-card.js` (either the GitHub release asset built by the included Actions workflow, or `dist/home-connect-oven-card.js` if you committed it) and register it as a Lovelace resource automatically.
+HACS will fetch `home-connect-oven-card.js` — the asset the release workflow builds and attaches to each GitHub release — and register it as a Lovelace resource automatically. (`dist/` is not committed; it is produced by CI on a `v*` tag.)
 
 ### Manual
 
@@ -119,13 +119,13 @@ entities:
 
 Default sensors: `operation_state`, `remaining_program_time`, `program_progress`, `current_cavity_temperature`.
 
-Available sensor keys: `operation_state`, `remaining_program_time`, `program_progress`, `current_cavity_temperature`, `active_program`, `selected_program`, `duration`, `door` — these render as compact status tiles. You can also pass a raw `entity_id` (e.g. `switch.kitchen_oven_fast_preheat`); the visual editor lists **every** entity your oven exposes under *Other device entities*. Added entities render as their **native interactive control** — a toggle for switches, a dropdown for selects, a slider for numbers, a button for buttons — exactly as they appear on the device page.
+Available sensor keys: `operation_state`, `remaining_program_time`, `program_progress`, `current_cavity_temperature`, `active_program`, `selected_program`, `duration`, `door` — these render as compact status tiles. You can also pass a raw `entity_id` (e.g. `switch.kitchen_oven_fast_preheat`); the visual editor lists **every** entity your oven exposes under *Other oven entities*. Added entities render as their **native interactive control** — a toggle for switches, a dropdown for selects, a slider for numbers, a button for buttons — exactly as they appear on the device page.
 
 ## Oven image
 
 By default the card shows a clean built-in oven icon. To display a real photo of your oven,
-either **pick or upload an image file** in the visual editor (the *Oven image* field is a
-standard Home Assistant image picker) or set `image_url` to any image URL:
+put an image address in the *Oven image* field in the visual editor, or set `image_url`
+directly:
 
 ```yaml
 type: custom:home-connect-oven-card
@@ -148,15 +148,16 @@ npm run build      # produces dist/home-connect-oven-card.js
 npm run watch      # rebuild on save
 ```
 
-### About the prebuilt `dist/home-connect-oven-card.js`
+### The built bundle
 
-The prebuilt bundle in this repo loads Lit from a public CDN at runtime:
+`dist/` is gitignored. `npm run build` produces a single self-contained
+`dist/home-connect-oven-card.js` with Lit bundled in — no runtime fetch from a CDN, nothing to
+reach on the public internet beyond whatever `image_url` you set. The same command runs in CI
+on a `v*` tag and attaches the result to the GitHub release, which is what HACS installs.
 
-```js
-import {...} from "https://cdn.jsdelivr.net/gh/lit/dist@3.1.4/all/lit-all.min.js";
-```
-
-This keeps the bundle small (~24 KB) and lets HACS install work out of the box, but it requires the Home Assistant frontend to reach `cdn.jsdelivr.net`. If you'd rather have a fully self-contained bundle (Lit inlined, no external fetch), run `npm install && npm run build` locally and replace `dist/home-connect-oven-card.js` — the Rollup config produces a single offline-capable file.
+The visual editor is built on Home Assistant's own `ha-form`, so every control in the card
+dialog is one of HA's components and follows your active theme. See
+[`docs/specs/card-editor-ha-form.md`](docs/specs/card-editor-ha-form.md).
 
 ## License
 
