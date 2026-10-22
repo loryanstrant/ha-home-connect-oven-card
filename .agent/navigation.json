@@ -1,0 +1,404 @@
+{
+  "schema_version": "1.0",
+  "repository": "ha-home-connect-oven-card",
+  "identity": {
+    "description": "A visual Lovelace card for Home Assistant that surfaces your **Home Connect** oven's entities in one place — picture of your oven, big-button controls, and a configurable strip of sensor tiles. Works with both the official cloud **Home Connect** integration and the community **Home Connect Local** (",
+    "default_branch": "main",
+    "languages": {
+      "TypeScript": 8,
+      "JavaScript": 1
+    },
+    "topics": [],
+    "licence": "MIT License",
+    "file_count": 27
+  },
+  "start_here": {
+    "readme": "README.md",
+    "agents_md": "AGENTS.md",
+    "entry_points": [],
+    "decision_records": [
+      "DECISIONS.md"
+    ],
+    "build_config": [
+      "hacs.json",
+      "package.json",
+      "tsconfig.json"
+    ],
+    "source_roots": [
+      "src",
+      "."
+    ]
+  },
+  "documentation": [
+    {
+      "path": "DECISIONS.md",
+      "title": "Decisions",
+      "lines": 63,
+      "headings": [
+        {
+          "level": 2,
+          "text": "2026-08-23 — The card editor is built on ha-form",
+          "anchor": "2026-08-23--the-card-editor-is-built-on-ha-form"
+        }
+      ]
+    },
+    {
+      "path": "README.md",
+      "title": "Home Connect Oven Card",
+      "lines": 164,
+      "headings": [
+        {
+          "level": 2,
+          "text": "Screenshots",
+          "anchor": "screenshots"
+        },
+        {
+          "level": 2,
+          "text": "Features",
+          "anchor": "features"
+        },
+        {
+          "level": 2,
+          "text": "Requirements",
+          "anchor": "requirements"
+        },
+        {
+          "level": 2,
+          "text": "Installation",
+          "anchor": "installation"
+        },
+        {
+          "level": 3,
+          "text": "Via HACS (recommended)",
+          "anchor": "via-hacs-recommended"
+        },
+        {
+          "level": 3,
+          "text": "Manual",
+          "anchor": "manual"
+        },
+        {
+          "level": 3,
+          "text": "Cutting a release",
+          "anchor": "cutting-a-release"
+        },
+        {
+          "level": 2,
+          "text": "Usage",
+          "anchor": "usage"
+        },
+        {
+          "level": 3,
+          "text": "Minimal YAML",
+          "anchor": "minimal-yaml"
+        },
+        {
+          "level": 3,
+          "text": "Fully configured YAML",
+          "anchor": "fully-configured-yaml"
+        },
+        {
+          "level": 3,
+          "text": "Configuration options",
+          "anchor": "configuration-options"
+        },
+        {
+          "level": 2,
+          "text": "Oven image",
+          "anchor": "oven-image"
+        },
+        {
+          "level": 2,
+          "text": "Development",
+          "anchor": "development"
+        },
+        {
+          "level": 3,
+          "text": "The built bundle",
+          "anchor": "the-built-bundle"
+        },
+        {
+          "level": 2,
+          "text": "License",
+          "anchor": "license"
+        }
+      ]
+    },
+    {
+      "path": "docs/specs/card-editor-ha-form.md",
+      "title": "Spec — Card editor on ha-form",
+      "lines": 156,
+      "headings": [
+        {
+          "level": 2,
+          "text": "Problem",
+          "anchor": "problem"
+        },
+        {
+          "level": 2,
+          "text": "A dead control found while reading",
+          "anchor": "a-dead-control-found-while-reading"
+        },
+        {
+          "level": 2,
+          "text": "Scope",
+          "anchor": "scope"
+        },
+        {
+          "level": 2,
+          "text": "Constraints found before designing",
+          "anchor": "constraints-found-before-designing"
+        },
+        {
+          "level": 2,
+          "text": "Flow",
+          "anchor": "flow"
+        },
+        {
+          "level": 3,
+          "text": "States",
+          "anchor": "states"
+        },
+        {
+          "level": 2,
+          "text": "Acceptance criteria",
+          "anchor": "acceptance-criteria"
+        },
+        {
+          "level": 2,
+          "text": "Non-goals",
+          "anchor": "non-goals"
+        }
+      ]
+    },
+    {
+      "path": "info.md",
+      "title": "Home Connect Oven Card",
+      "lines": 30,
+      "headings": [
+        {
+          "level": 2,
+          "text": "Quick start",
+          "anchor": "quick-start"
+        },
+        {
+          "level": 2,
+          "text": "Configuration",
+          "anchor": "configuration"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "source_roots": [
+      "src",
+      "."
+    ],
+    "symbol_source": "repomix (tree-sitter signatures)",
+    "routes": [],
+    "files": [
+      {
+        "path": "src/const.ts",
+        "symbols": [
+          {
+            "kind": "type",
+            "name": "ToggleKey",
+            "parent": "",
+            "signature": "export type ToggleKey = keyof typeof TOGGLE_DEFAULTS;"
+          }
+        ]
+      },
+      {
+        "path": "src/editor.ts",
+        "symbols": [
+          {
+            "kind": "function",
+            "name": "fallbackLabel",
+            "parent": "",
+            "signature": "function fallbackLabel(key: string): string"
+          },
+          {
+            "kind": "interface",
+            "name": "EditorContext",
+            "parent": "",
+            "signature": "interface EditorContext"
+          },
+          {
+            "kind": "class",
+            "name": "HomeConnectOvenCardEditor",
+            "parent": "",
+            "signature": "export class HomeConnectOvenCardEditor extends LitElement"
+          }
+        ]
+      },
+      {
+        "path": "src/entity-resolver.ts",
+        "symbols": [
+          {
+            "kind": "interface",
+            "name": "HassDevice",
+            "parent": "",
+            "signature": "interface HassDevice"
+          },
+          {
+            "kind": "interface",
+            "name": "HassEntity",
+            "parent": "",
+            "signature": "interface HassEntity"
+          },
+          {
+            "kind": "interface",
+            "name": "HassExt",
+            "parent": "",
+            "signature": "interface HassExt extends HomeAssistant"
+          },
+          {
+            "kind": "function",
+            "name": "getDeviceInfo",
+            "parent": "",
+            "signature": "export function getDeviceInfo("
+          },
+          {
+            "kind": "function",
+            "name": "getDeviceEntities",
+            "parent": "",
+            "signature": "export function getDeviceEntities("
+          },
+          {
+            "kind": "function",
+            "name": "resolveEntities",
+            "parent": "",
+            "signature": "export function resolveEntities("
+          },
+          {
+            "kind": "function",
+            "name": "findHomeConnectOvenDevices",
+            "parent": "",
+            "signature": "export function findHomeConnectOvenDevices(hass: HomeAssistant): DeviceInfo[]"
+          }
+        ]
+      },
+      {
+        "path": "src/format.ts",
+        "symbols": [
+          {
+            "kind": "function",
+            "name": "prettifyLabel",
+            "parent": "",
+            "signature": "export function prettifyLabel(label: string): string"
+          }
+        ]
+      },
+      {
+        "path": "src/ha-form.ts",
+        "symbols": [
+          {
+            "kind": "interface",
+            "name": "SelectOption",
+            "parent": "",
+            "signature": "export interface SelectOption"
+          },
+          {
+            "kind": "type",
+            "name": "Selector",
+            "parent": "",
+            "signature": "export type Selector ="
+          },
+          {
+            "kind": "interface",
+            "name": "HaFormSelectorSchema",
+            "parent": "",
+            "signature": "export interface HaFormSelectorSchema"
+          },
+          {
+            "kind": "interface",
+            "name": "HaFormGroupSchema",
+            "parent": "",
+            "signature": "export interface HaFormGroupSchema"
+          },
+          {
+            "kind": "type",
+            "name": "HaFormSchema",
+            "parent": "",
+            "signature": "export type HaFormSchema = HaFormSelectorSchema | HaFormGroupSchema;"
+          },
+          {
+            "kind": "interface",
+            "name": "CardWithConfigElement",
+            "parent": "",
+            "signature": "interface CardWithConfigElement"
+          },
+          {
+            "kind": "function",
+            "name": "loadHaComponents",
+            "parent": "",
+            "signature": "export function loadHaComponents(): void"
+          }
+        ]
+      },
+      {
+        "path": "src/home-connect-oven-card.ts",
+        "symbols": [
+          {
+            "kind": "interface",
+            "name": "CardRowHelpers",
+            "parent": "",
+            "signature": "interface CardRowHelpers"
+          },
+          {
+            "kind": "class",
+            "name": "HomeConnectOvenCard",
+            "parent": "",
+            "signature": "export class HomeConnectOvenCard extends LitElement"
+          },
+          {
+            "kind": "interface",
+            "name": "HTMLElementTagNameMap",
+            "parent": "",
+            "signature": "interface HTMLElementTagNameMap"
+          }
+        ]
+      },
+      {
+        "path": "src/types.ts",
+        "symbols": [
+          {
+            "kind": "interface",
+            "name": "HomeConnectOvenCardConfig",
+            "parent": "",
+            "signature": "export interface HomeConnectOvenCardConfig extends LovelaceCardConfig"
+          },
+          {
+            "kind": "interface",
+            "name": "ResolvedEntities",
+            "parent": "",
+            "signature": "export interface ResolvedEntities"
+          },
+          {
+            "kind": "interface",
+            "name": "DeviceInfo",
+            "parent": "",
+            "signature": "export interface DeviceInfo"
+          }
+        ]
+      }
+    ]
+  },
+  "tests": [],
+  "operations": [
+    ".github/workflows/build.yml",
+    ".github/workflows/validate.yaml"
+  ],
+  "limitations": {
+    "unparsed_languages": [],
+    "excluded_dirs": [],
+    "code_map_truncated": false,
+    "code_map_symbols_capped": false,
+    "tracked_files_only": true
+  },
+  "generated": {
+    "source_commit": "2187be204de6dc4da43dcd6477be444521fc496a",
+    "content_hash": "6bc35c7a735c934a",
+    "generator": "navgen"
+  }
+}
